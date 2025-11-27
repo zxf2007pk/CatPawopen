@@ -1,7 +1,4 @@
 import req from '../../util/req.js';
-import pkg from 'lodash';
-const { _ } = pkg;
-
 let SITE = 'https://ev5356.970xw.com';
 let IMG_DOMAIN = '';
 const HEADERS = {
