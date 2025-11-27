@@ -9,7 +9,7 @@ import _360ba from "./spider/video/_360ba.js";
 import qq from "./spider/video/qq.js";
 import iqiyi from "./spider/video/iqiyi.js";
 import symx from "./spider/video/symx.js";
-import syjc from "./spider/video/qq.js";
+import syjc from "./spider/video/syjc.js";
 import m3u8cj from "./spider/video/m3u8cj.js";
 import lives from "./spider/video/lives.js";
 import jieyingshi from "./spider/video/jieyingshi.js";
@@ -26,7 +26,8 @@ import douban from "./spider/video/douban.js";
 import push from "./spider/video/push.js";
 import {getCache} from "./website/sites.js";
 
-const spiders = [douban, duoduo, mogg, leijing, panta, wogg, zhizhen, jianpian, syjc, qq, iqiyi, bili, _360ba, lives, fenmei_live, cntv, huya, douyu, m3u8cj, appys, syjc, tgchannel, tgsou, baseset, push];
+
+const spiders = [douban, duoduo, mogg, leijing, panta, wogg, zhizhen, _360ba, qq, iqiyi, symx, syjc, m3u8cj, lives, jieyingshi, jianpian, fenmei_live, huya, douyu, cntv, bili, appys, tgchannel, tgsou, baseset, push];
 const spiderPrefix = '/spider';
 
 /**
