@@ -1,6 +1,4 @@
 import req from '../../util/req.js';
-import pkg from 'lodash';
-const { _ } = pkg;
 import { load } from 'cheerio';
 
 let HOST = 'https://h4ivs.sm431.vip';
