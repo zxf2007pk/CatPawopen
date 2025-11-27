@@ -26,7 +26,7 @@ import cntv from "./spider/video/cntv.js";
 import bili from "./spider/video/bili.js";
 import appys from "./spider/video/appys.js";
 
-const spiders = [douban, duoduo, mogg, leijing, panta, wogg, zhizhen, tgchannel, tgsou, baseset, push];
+const spiders = [douban, duoduo, mogg, leijing, panta, wogg, zhizhen, jianpian, syjc, qq, iqiyi, bili, _360ba, lives, fenmei_live, cntv, huya, douyu, m3u8cj, appys, syjc, tgchannel, tgsou, baseset, push];
 const spiderPrefix = '/spider';
 
 /**
