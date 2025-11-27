@@ -5,13 +5,10 @@ import leijing from "./spider/video/leijing.js";
 import panta from "./spider/video/panta.js";
 import wogg from "./spider/video/wogg.js";
 import zhizhen from "./spider/video/zhizhen.js";
-import _360ba from "./spider/video/_360ba.js";
 import qq from "./spider/video/qq.js";
 import iqiyi from "./spider/video/iqiyi.js";
 import symx from "./spider/video/symx.js";
 import syjc from "./spider/video/syjc.js";
-import m3u8cj from "./spider/video/m3u8cj.js";
-import lives from "./spider/video/lives.js";
 import jieyingshi from "./spider/video/jieyingshi.js";
 import jianpian from "./spider/video/jianpian.js";
 import fenmei_live from "./spider/video/fenmei_live.js";
@@ -19,7 +16,6 @@ import huya from "./spider/video/huya.js";
 import douyu from "./spider/video/douyu.js";
 import cntv from "./spider/video/cntv.js";
 import bili from "./spider/video/bili.js";
-import appys from "./spider/video/appys.js";
 import tgsou from "./spider/video/tgsou.js";
 import tgchannel from "./spider/video/tgchannel.js";
 import douban from "./spider/video/douban.js";
@@ -27,7 +23,7 @@ import push from "./spider/video/push.js";
 import {getCache} from "./website/sites.js";
 
 
-const spiders = [douban, duoduo, mogg, leijing, panta, wogg, zhizhen, _360ba, qq, iqiyi, symx, syjc, m3u8cj, lives, jieyingshi, jianpian, fenmei_live, huya, douyu, cntv, bili, appys, tgchannel, tgsou, baseset, push];
+const spiders = [douban, duoduo, mogg, leijing, panta, wogg, zhizhen, qq, iqiyi, symx, syjc, jieyingshi, jianpian, fenmei_live, huya, douyu, cntv, bili, tgchannel, tgsou, baseset, push];
 const spiderPrefix = '/spider';
 
 /**
