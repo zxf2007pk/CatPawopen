@@ -36,6 +36,10 @@ export default {
     pans: {
         list: [],
     },
+    danmu: {
+        urls: [{address: "https://danmuapi-ten-iota.vercel.app", name: "默认服务器"}],
+        autoPush: true
+    },
     alist: [
         {
             name: '🐉神族九帝',

@@ -10,9 +10,14 @@ import tgchannel from "./spider/video/tgchannel.js";
 import douban from "./spider/video/douban.js";
 import push from "./spider/video/push.js";
 import {getCache} from "./website/sites.js";
+import {getCache as getDanmuSetting} from "./website/danmu.js";
+import axios from "axios";
+import { extractTitle, findEpisodeNumber } from './util/danmu-utils.js';
 
 const spiders = [douban, duoduo, mogg, leijing, panta, wogg, zhizhen, tgchannel, tgsou, baseset, push];
 const spiderPrefix = '/spider';
+
+let danmuInfo = {};
 
 /**
  * A function to initialize the router.
@@ -118,6 +123,7 @@ export default async function router(fastify) {
                         }
                     })
                     config.video.sites = rs
+                    config.video.danmuSearchUrl = `http://127.0.0.1:${_request.server.address().port}/website/danmu/fe`
 
                     reply.send(config);
                 }
@@ -128,4 +134,115 @@ export default async function router(fastify) {
             })
         }
     );
+
+    fastify.get('/danmu-proxy', async (request, reply) => {
+        try {
+            const {name, episodeNumber} = request.query
+            const danmuSetting = await getDanmuSetting(request.server)
+            let matched = false
+            let count = 0
+            const danmuUrl = await new Promise(resolve => {
+                for(const url of danmuSetting.urls) {
+                    axios.get(`${url.address}/api/v2/search/episodes`, {
+                        params: {
+                            anime: name
+                        }
+                    })
+                      .then(async res => {
+                          console.log('searchResult', name, res.data)
+                          const anime = res.data.animes[0]
+                          const episode = anime.episodes.find(item => findEpisodeNumber(item.episodeTitle) === episodeNumber) || anime.episodes[0]
+                          if (!matched) {
+                              matched = true
+                              messageToDart({
+                                  action: 'toast',
+                                  opt: {
+                                      message: `匹配弹幕：${anime.animeTitle} ${episode.episodeTitle}`,
+                                      duration: 3
+                                  }
+                              })
+                              resolve(`${url.address}/api/v2/comment/${episode.episodeId}?format=xml`)
+                          }
+                      })
+                      .finally(() => {
+                          count++
+                          if (count === danmuSetting.urls.length && !matched) {
+                              resolve()
+                          }
+                      })
+                }
+            })
+            if (danmuUrl) {
+                const response = await axios.get(danmuUrl, { responseType: 'text' });
+                reply.header('Content-Type', 'application/xml');
+                reply.send(response.data);
+            } else {
+                messageToDart({
+                    action: 'toast',
+                    opt: {
+                        message: '没有匹配的弹幕，请手动推送',
+                        duration: 3
+                    }
+                })
+                reply.header('Content-Type', 'application/xml');
+                reply.send('<?xml version="1.0" encoding="UTF-8"?><i/>');
+            }
+        } catch (e) {
+            console.error('Danmu proxy error:', e);
+            reply.code(500).send({ error: 'Failed to fetch danmu content' });
+        }
+    });
+
+    // 注册统一的钩子
+    fastify.addHook('onSend', async (request, reply, payload) => {
+        try {
+            // 这里做弹幕自动推送
+            const danmuSetting = await getDanmuSetting(request.server)
+            if (danmuSetting.autoPush) {
+                if (request.url.endsWith('/detail')) {
+                    // 调用detail接口时先把剧集信息存下来
+                    const data = JSON.parse(payload)
+                    const vodInfo = data.list[0]
+                    danmuInfo = {}
+                    const lines = vodInfo.vod_play_from.split('$$$') || []
+                    vodInfo.vod_play_url.split('$$$').filter(Boolean).forEach((vods, lineIndex) => {
+                        vods.split('#').forEach((vod) => {
+                            const [name, id] = vod.split('$')
+
+                            danmuInfo[`${lines[lineIndex]}_${id}`] = {
+                                name: extractTitle(vodInfo.vod_name),
+                                episodeNumber: findEpisodeNumber(name)
+                            };
+                        })
+                    })
+                    console.log('danmuInfo', danmuInfo)
+                }
+                if (request.url.endsWith('/play')) {
+                    const data = JSON.parse(payload)
+                    if ((data.url || data.url?.length || data.urls?.length) && !data?.extra?.danmaku) {
+                        const key = `${request.body.flag}_${request.body.id}`
+                        const episodeInfo = danmuInfo[key]
+                        if (episodeInfo) {
+                            if (!data.extra) {
+                                data.extra = {}
+                            }
+                            data.extra.danmaku = `http://127.0.0.1:${request.server.address().port}/danmu-proxy?name=${encodeURIComponent(episodeInfo.name)}&episodeNumber=${encodeURIComponent(episodeInfo.episodeNumber)}`
+                            return JSON.stringify(data)
+                        } else {
+                            messageToDart({
+                                action: 'toast',
+                                opt: {
+                                    message: '没有匹配的弹幕，请手动推送',
+                                    duration: 3
+                                }
+                            })
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            console.error(err)
+        }
+        return payload
+    })
 }
